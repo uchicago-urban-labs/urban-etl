@@ -7,11 +7,22 @@
 # To add additional functionality from petl, all that is needed is a quick
 # translation of the desired petl function into this wrapper. If functionality
 # that is not petl derived is required, it must be added here using the petl
-# 
 
-from petl import *
+import petl
 import eblink
 
-class Transform:
+def headers(table):
+    '''
+    This function returns the headers of the Extract table given as a tuple.
+    '''
+    return petl.util.base.header(table)
 
-    def
+def link(data=[], how='eblink', interactive=False, links=[], uids=[], types=[],
+ iterations=100000, alpha=1, beta=999 out='pairs'):
+    '''
+    This function allows the user to carry out linking between mutliple
+    datasets.
+
+    Inputs: check Transform Functons file for more information.
+    '''
+    
