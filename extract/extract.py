@@ -1,9 +1,9 @@
 # UrbanETL Extract Functions
 # 8/15/2016
 
-# This file is a wrapper for petl extract functions. There is very little
-# structure to this code; it essentially determines from the input string what
-# kind of extract strategy to execute, unless specified by the user.
+# This file is a wrapper for petl extract and load functions. There is very
+# little structure to this code; it essentially determines from the input string
+# what kind of extract strategy to execute, unless specified by the user.
 
 # petl documentation: https://petl.readthedocs.io/en/latest/index.html
 # For any datasource, regardless of type, self.data is an iterable data type
@@ -18,6 +18,7 @@
 
 import petl
 import csv
+import transform
 
 # When you add a supported format, please add it to the SUPPORTED global for
 # reference purposes, in the order added.
@@ -38,35 +39,51 @@ class UrbanExtract():
 
         See the SUPPORTED global for currently supported file types.
         '''
+        ### CSV ###
         if self.datatype == 'csv' or '.csv' in self.datasource:
             try:
                 self.data = petl.io.fromcsv(self.datasource)
-                print "    Data extracted successfully."
+                print "----> Data extracted successfully."
             except Exception as e:
-                print "    ERROR: Cannot read csv file. {}".format(e)
+                print "----> ERROR: Cannot read csv file. {}".format(e)
 
+        ### PANDAS ###
         if self.datatype == 'pandas':
             try:
                 self.data = petl.io.fromdataframe(self.datasource, include_index=False))
+                print "----> Data extracted successfully."
             except Exception as e:
-                print "    ERROR: Cannot read pandas dataframe. {}".format(e)
+                print "----> ERROR: Cannot read pandas dataframe. {}".format(e)
 
+        ### ERROR MESSAGE ###
         else:
-            print "    This datasource type is not yet supported."
-            print "    Urban ETL currently supports the following data formats:\n"
+            print "----> This datasource type is not yet supported or cannot be determined."
+            print "----> If datasource type is supported, please specify using datatype."
+            print "----> Urban ETL currently supports the following data formats:\n"
             for x in SUPPORTED:
-                print x
+                print "        {}".format(x)
 
-    def load(self, filetype, destination, **args):
+    def load(self, desttype, destination=None, **kargs):
         '''
-        A nest of if statements by type to output to a destination.
+        A nest of booleans to load table into destination.
 
         Can take additional arguments depending on type.
         '''
-        if filetype == 'csv':
+        ### CSV ###
+        if desttype == 'csv':
             # can pass any arguments accepted by csv
-            petl.io.csv.tocsv(self.data, **args)
-        if filetype == 'pandas':
+            petl.io.csv.tocsv(self.data, destination, **kargs)
+            print "----> Data written to {}.".format(destination)
+
+        ### PANDAS ###
+        if desttype == 'pandas':
             # Additional arguments:
             #   index=None, exclude=None, columns=None, coerce_float=False, nrows=None
-            petl.io.pandas.todataframe(self.data, **args)
+            return petl.io.pandas.todataframe(self.data, **kargs)
+
+        ### ERROR MESSAGE ###
+        else:
+            print "----> This destination type is not yet supported."
+            print "----> Urban ETL currently supports the following data formats:\n"
+            for x in SUPPORTED:
+                print "        {}".format(x)
