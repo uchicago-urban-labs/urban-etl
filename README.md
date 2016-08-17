@@ -8,6 +8,7 @@ This code base is a flexible, easily extendible system for regularizing extract-
 This code is written in Python 2.7. Make sure the run the requirements.txt file for the necessary packages outside of this repo: 
 + [petl](https://petl.readthedocs.io) - for which Urban ETL is primarily a simple-to-use wrapper
 + [sqlalchemy](https://readthedocs.org/projects/sqlalchemy/) - which allows Extracts and Loads to SQL databases
++ [ebLink for Python](https://github.com/aldengolab/graphical-record-linkage) - which is a Python encapsulation of [ebLink](https://github.com/resteorts/ebLink).
 
 ## Simple Usage
 Urban ETL is designed to be as easy to use as possible: 
