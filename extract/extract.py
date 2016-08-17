@@ -39,24 +39,24 @@ class Extract():
 
         See the SUPPORTED global for currently supported file types.
         '''
-        ### CSV ###
         if self.datatype == 'csv' or '.csv' in self.datasource:
+            ### CSV ###
             try:
                 self.data = petl.io.fromcsv(self.datasource)
                 print "----> Data extracted successfully."
+                return
             except Exception as e:
                 print "----> ERROR: Cannot read csv file. {}".format(e)
-
-        ### PANDAS ###
         if self.datatype == 'pandas':
+            ### PANDAS ###
             try:
                 self.data = petl.io.fromdataframe(self.datasource, include_index=False)
                 print "----> Data extracted successfully."
+                return
             except Exception as e:
                 print "----> ERROR: Cannot read pandas dataframe. {}".format(e)
-
-        ### ERROR MESSAGE ###
         else:
+            ### ERROR MESSAGE ###
             print "----> This datasource type is not yet supported or cannot be determined."
             print "----> If datasource type is supported, please specify using datatype."
             print "----> Urban ETL currently supports the following data formats:\n"
