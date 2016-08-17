@@ -6,7 +6,7 @@ This code base is a flexible, easily extendible system for regularizing extract-
 
 ## Requirements
 This code is written in Python 2.7. Make sure the run the requirements.txt file for the necessary packages outside of this repo: 
-+ [petl](petl.readthedocs.io) - for which Urban ETL is primarily a simple-to-use wrapper
++ [petl](https://petl.readthedocs.io) - for which Urban ETL is primarily a simple-to-use wrapper
 + [sqlalchemy](https://readthedocs.org/projects/sqlalchemy/) - which allows Extracts and Loads to SQL databases
 
 ## Simple Usage
