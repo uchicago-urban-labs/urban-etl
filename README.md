@@ -2,7 +2,7 @@
 A modular pipeline for extract-transform-load, created for the UChicago Urban Labs.
 
 ## Purpose
-This code base is a flexible, easily extendible system for regularizing extract-transfer-load processes for the Urban Labs. Written in Python, this system 
+This code base is a flexible, easily extendible system for regularizing extract-transfer-load processes for the Urban Labs. Written in Python, this system can easily take new functions, either built off of petl (the underlying ETL code) or custom built for specific applications. 
 
 ## Requirements
 This code is written in Python 2.7. Make sure the run the requirements.txt file for the necessary packages outside of this repo: 
