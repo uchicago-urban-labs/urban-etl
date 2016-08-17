@@ -50,7 +50,7 @@ class UrbanExtract():
         ### PANDAS ###
         if self.datatype == 'pandas':
             try:
-                self.data = petl.io.fromdataframe(self.datasource, include_index=False))
+                self.data = petl.io.fromdataframe(self.datasource, include_index=False)
                 print "----> Data extracted successfully."
             except Exception as e:
                 print "----> ERROR: Cannot read pandas dataframe. {}".format(e)
