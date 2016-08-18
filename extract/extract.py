@@ -18,14 +18,22 @@
 
 import petl
 import csv
-import transform
+# import transform
+# import transform
+# transform.path.append('../transform')
+
 
 # When you add a supported format, please add it to the SUPPORTED global for
 # reference purposes, in the order added.
 
-SUPPORTED = ['csv', 'pandas']
+SUPPORTED = ['csv', 'pandas', '']
 
-class Extract():
+class Extract(object):
+
+    '''
+    Return an Extract object whose data is *data read from the *datasource
+    with *datatype
+    '''
 
     def __init__(self, datasource, datatype=None, args = ()):
         self.datasource = datasource
@@ -36,7 +44,6 @@ class Extract():
     def read(self):
         '''
         A nest of booleans to determine which extract function to call.
-
         See the SUPPORTED global for currently supported file types.
         '''
         if self.datatype == 'csv' or '.csv' in self.datasource:
