@@ -26,7 +26,8 @@ import csv
 # When you add a supported format, please add it to the SUPPORTED global for
 # reference purposes, in the order added.
 
-SUPPORTED = ['csv', 'pandas', '']
+SUPPORTED = ['csv', 'pandas'] # '.xlsx', '.xlrd', '.xlwt', '.xls', '.dta', '.csv'
+#'.json','.html']
 
 class Extract(object):
 
