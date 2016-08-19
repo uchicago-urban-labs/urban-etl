@@ -13,30 +13,32 @@
 import petl
 import eblink as eb
 
-def headers(table):
+def headers(extract):
     '''
     Returns the headers of the Extract table given as a tuple.
     '''
-    return petl.util.base.header(table)
+    return petl.util.base.header(extract.data)
 
 def link(data=[], how='eblink', interactive=False, links=[], uids=[], types=[],
  iterations=100000, alpha=1, beta=999, out='links'):
     '''
     Allows the user to carry out linking between mutliple datasets.
     '''
+    files = [x.data for x in data]
     if how == 'eblink':
         if interactive == True:
-            link = eb.EBlink(interactive=True, files=data)
+            link = eb.EBlink(interactive=True, files=files)
         else:
-            link = eb.EBlink(files=data)
+            link = eb.EBlink(files=files)
+            # Prepare inputs
             link._columns, link._matchcolumns = _eblink_buildcols(links)
             link._indices = uids
-            link._column_types = types
+            link._column_types = _eblink_buildtypes(link._columns[0],types)
             link.iterations = iterations
             link.a = alpha
             link.b = beta
+            # Carry out process
             link.build()
-            link.define()
             link.model()
             link.build_crosswalk()
 
@@ -49,19 +51,30 @@ def link(data=[], how='eblink', interactive=False, links=[], uids=[], types=[],
     if out == 'inter':
         build_linked_data(link, interactive=True)
 
+    link.clean_tmp()
+
+def _eblink_buildtypes(columns, types):
+    '''
+    Private function for eblink. Builds dictionary for types input.
+    '''
+    rv = {}
+    for i in range(len(columns)):
+        rv[columns[i]] = types[i].upper()
+    return rv
+
 def _eblink_buildcols(links):
     '''
     Private function for eblink. Builds column inputs from links.
     '''
-    columns = []
-    matchcolumns = [[] for x in links[0][1:]]
-    for link in links:
-        columns.append(link[0])
-        ind = 0
-        for col in link:
-            if ind != 0:
-                matchcolumns[ind-1].append(col)
-            ind += 1
+    columns = [[] for x in links[0]]
+    matchcolumns = {}
+    for i in range(len(links)):
+        for j in range(len(links[i])):
+            columns[j].append(links[i][j])
+            if j == 0:
+                matchcolumns[links[i][j]] = []
+            else:
+                matchcolumns[columns[0][i]].append(links[i][j])
     return (columns, matchcolumns)
 
 def build_linked_data(link, interactive = False):
@@ -70,3 +83,4 @@ def build_linked_data(link, interactive = False):
     interactive, will prompt user to choose a record to keep.
     Else, will choose only first file's record to keep.
     '''
+    pass

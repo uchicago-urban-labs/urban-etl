@@ -18,22 +18,22 @@
 
 import petl
 import csv
-import transform
+import eblink as eb
 
 # When you add a supported format, please add it to the SUPPORTED global for
 # reference purposes, in the order added.
 
 SUPPORTED = ['csv', 'pandas']
 
-class Extract():
+class UrbanETL():
 
-    def __init__(self, datasource, datatype=None, args = ()):
+    def __init__(self, datasource, datatype=None):
         self.datasource = datasource
         self.datatype = datatype
         self.data = None
-        self.read()
+        self.extract()
 
-    def read(self):
+    def extract(self):
         '''
         A nest of booleans to determine which extract function to call.
 
@@ -62,6 +62,11 @@ class Extract():
             print "----> Urban ETL currently supports the following data formats:\n"
             for x in SUPPORTED:
                 print "        {}".format(x)
+
+                          ###########################
+                          ###   Load Functions    ###
+                          ###########################
+
 
     def load(self, desttype, destination=None, **kargs):
         '''
