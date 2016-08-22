@@ -6,7 +6,7 @@
 # what kind of extract strategy to execute, unless specified by the user.
 
 # petl documentation: https://petl.readthedocs.io/en/latest/index.html
-# For any datasource, regardless of type, self.data is an iterable data type
+# For any datasource, regardless of type, self._data is an iterable data type
 # that returns one tuple per row, where the first row are headers.
 
 # To add additional extract/load functionality, simply extend the if statements
@@ -41,9 +41,9 @@ SUPPORTED = ['csv', 'pandas']
 class UrbanETL():
 
     def __init__(self, datasource, datatype=None):
-        self.datasource = datasource
-        self.datatype = datatype
-        self.data = None
+        self._datasource = datasource
+        self._datatype = datatype
+        self._data = None
         self.extract()
 
 ################################################################################
@@ -56,18 +56,18 @@ class UrbanETL():
 
         See the SUPPORTED global for currently supported file types.
         '''
-        if self.datatype == 'csv' or '.csv' in self.datasource:
+        if self._datatype == 'csv' or '.csv' in self._datasource:
             ### CSV ###
             try:
-                self.data = petl.io.fromcsv(self.datasource)
+                self._data = petl.io.fromcsv(self._datasource)
                 print "----> Data extracted successfully."
                 return
             except Exception as e:
                 print "----> ERROR: Cannot read csv file. {}".format(e)
-        if self.datatype == 'pandas':
+        if self._datatype == 'pandas':
             ### PANDAS ###
             try:
-                self.data = petl.io.fromdataframe(self.datasource,
+                self._data = petl.io.fromdataframe(self._datasource,
                  include_index=False)
                 print "----> Data extracted successfully."
                 return
@@ -95,14 +95,14 @@ class UrbanETL():
         ### CSV ###
         if desttype == 'csv':
             # can pass any arguments accepted by csv
-            petl.io.csv.tocsv(self.data, destination, **kargs)
+            petl.io.csv.tocsv(self._data, destination, **kargs)
             print "----> Data written to {}.".format(destination)
 
         ### PANDAS ###
         if desttype == 'pandas':
             # Additional arguments:
             #   index=None, exclude=None, columns=None, coerce_float=False, nrows=None
-            return petl.io.pandas.todataframe(self.data, **kargs)
+            return petl.io.pandas.todataframe(self._data, **kargs)
 
         ### ERROR MESSAGE ###
         else:
@@ -116,18 +116,24 @@ class UrbanETL():
 ############################# Transform Functions ##############################
 ################################################################################
 
+## Transform functions should always operate inplace by default.
+## Note that this requires editing the self._data table directly.
+
     def headers(self, extract):
         '''
         Returns the headers of the Extract table given as a tuple.
         '''
-        return petl.util.base.header(extract.data)
+        return petl.util.base.header(extract._data)
 
     def link(self, data=[], how='eblink', interactive=False, links=[], uids=[],
      types=[], iterations=100000, alpha=1, beta=999, out='links'):
         '''
         Allows the user to carry out linking between mutliple datasets.
+
+        Note that this function uses pandas in the build_crosswalk call, and
+        thus may have performance problems at scale.
         '''
-        files = [self.data] + [x.data for x in data]
+        files = [self._data] + [x._data for x in data]
         if how == 'eblink':
             if interactive == True:
                 link = eb.EBlink(interactive=True, files=files)
@@ -149,16 +155,17 @@ class UrbanETL():
 
         if out == 'links':
             link.clean_tmp()
-            return (link.crosswalk, link)
+            return (UrbanETL(link.crosswalk, 'pandas'), link)
 
         if out == 'linked':
+            rv = self._eblink_build_linked_data(link)
             link.clean_tmp()
-            self.build_linked_data(link)
+            return rv
 
         if out == 'inter':
+            rv = self._eblink_build_linked_data(link, interactive=True)
             link.clean_tmp()
-            self.build_linked_data(link, interactive=True)
-
+            return rv
 
     def _eblink_buildtypes(self, columns, types):
         '''
@@ -184,10 +191,51 @@ class UrbanETL():
                     matchcolumns[columns[0][i]].append(links[i][j])
         return (columns, matchcolumns)
 
-    def build_linked_data(self, link, interactive = False):
+    def _eblink_build_linked_data(self, link, interactive = False):
         '''
         Builds a linked dataset using data and a crosswalk. If
         interactive, will prompt user to choose a record to keep.
-        Else, will choose only first file's record to keep.
+        Else, will choose only first file's record to keep. Crosswalk should be
+        an iterable composed of tuples.
+
+        ## This function uses Pandas and may need to be edited for scaling! ##
         '''
-        pass
+        rv = []
+        for i in range(len(link._files)):
+            data = UrbanETL(link._files[i])
+            crosswalk = UrbanETL(link.crosswalk, 'pandas')
+            for x in crosswalk:
+                if type(x[i]) == tuple:
+                    if interactive:
+                        for j in range(len(tuple)):
+                            entry = data.get(tuple[j], link._indices[i])
+                            print 'Entry {}: {}'.format(j, entry)
+                        keep = len(tuple)
+                        while keep >= len(tuple) or keep < 0:
+                            keep = raw_input('Please select which entry to keep: ')
+                        keep = int(keep.strip())
+                        rv.append(data.get(tuple[keep], link._indices[i]))
+                    else:
+                        rv.append(data.get(tuple[0], link._indices[i]))
+                elif x[i] != '':
+                    rv.append(data.get(x[i]))
+
+        return UrbanETL(pd.DataFrame(rv), 'pandas')
+
+    def get(self, index, column):
+        '''
+        Gets an individual entry from the UrbanETL object based on its index.
+        Entry value MUST be unique.
+        '''
+        try:
+            lkp = etl.lookupone(self._data, column, strict=True)
+            return lkp[index]
+        except etl.errors.DuplicateKeyError as e:
+            print e
+
+    def __repr__(self):
+        petl.look(self, style = 'minimal')
+
+    def __iter__(self):
+        for x in self._data:
+            yield x
