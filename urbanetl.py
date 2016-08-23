@@ -32,13 +32,12 @@ for root, dirs, files in os.walk('.'):
         sys.path.append(os.path.join(root))
 import eblink as eb
 
-
 # When you add a supported format, please add it to the SUPPORTED global for
 # reference purposes, in the order added.
 
 SUPPORTED = ['csv', 'pandas']
 
-class UrbanETL():
+class UrbanETL(object):
 
     def __init__(self, datasource, datatype=None):
         self._datasource = datasource
@@ -60,8 +59,11 @@ class UrbanETL():
             ### CSV ###
             try:
                 self._data = petl.io.fromcsv(self._datasource)
-                print "----> Data extracted successfully."
-                return
+                if 'failed' not in self._data:
+                    print "----> Data extracted successfully."
+                    return
+                else:
+                    print "----> ERROR: Cannot read csv file."
             except Exception as e:
                 print "----> ERROR: Cannot read csv file. {}".format(e)
         if self._datatype == 'pandas':
@@ -69,8 +71,12 @@ class UrbanETL():
             try:
                 self._data = petl.io.fromdataframe(self._datasource,
                  include_index=False)
-                print "----> Data extracted successfully."
-                return
+                if 'failed' not in self._data:
+                    print "----> Data extracted successfully."
+                    return
+                else:
+                    print "----> ERROR: Cannot read pandas dataframe."
+                    return
             except Exception as e:
                 print "----> ERROR: Cannot read pandas dataframe. {}".format(e)
         else:
@@ -119,11 +125,11 @@ class UrbanETL():
 ## Transform functions should always operate inplace by default.
 ## Note that this requires editing the self._data table directly.
 
-    def headers(self, extract):
+    def headers(self):
         '''
         Returns the headers of the Extract table given as a tuple.
         '''
-        return petl.util.base.header(extract._data)
+        return petl.util.base.header(self._data)
 
     def link(self, data=[], how='eblink', interactive=False, links=[], uids=[],
      types=[], iterations=100000, alpha=1, beta=999, out='links'):
@@ -154,18 +160,22 @@ class UrbanETL():
                 link.build_crosswalk()
 
         if out == 'links':
+            # Outputs the crosswalk of UIDs for each file
             link.clean_tmp()
-            return (UrbanETL(link.crosswalk, 'pandas'), link)
+            return UrbanETL(link.crosswalk, 'pandas')
 
         if out == 'linked':
-            rv = self._eblink_build_linked_data(link)
+            # Outputs the linked file with the columns used in the link
+            # Non-interactive, will select first entry
+            link.build_linked_data()
             link.clean_tmp()
-            return rv
+            return UrbanETL(link.linked_set, 'pandas')
 
         if out == 'inter':
-            rv = self._eblink_build_linked_data(link, interactive=True)
+            # Interactively asks which linked entries to keep
+            link.build_linked_data(interactive=True)
             link.clean_tmp()
-            return rv
+            return UrbanETL(link.linked_set, 'pandas')
 
     def _eblink_buildtypes(self, columns, types):
         '''
@@ -191,51 +201,27 @@ class UrbanETL():
                     matchcolumns[columns[0][i]].append(links[i][j])
         return (columns, matchcolumns)
 
-    def _eblink_build_linked_data(self, link, interactive = False):
-        '''
-        Builds a linked dataset using data and a crosswalk. If
-        interactive, will prompt user to choose a record to keep.
-        Else, will choose only first file's record to keep. Crosswalk should be
-        an iterable composed of tuples.
-
-        ## This function uses Pandas and may need to be edited for scaling! ##
-        '''
-        rv = []
-        for i in range(len(link._files)):
-            data = UrbanETL(link._files[i])
-            crosswalk = UrbanETL(link.crosswalk, 'pandas')
-            for x in crosswalk:
-                if type(x[i]) == tuple:
-                    if interactive:
-                        for j in range(len(tuple)):
-                            entry = data.get(tuple[j], link._indices[i])
-                            print 'Entry {}: {}'.format(j, entry)
-                        keep = len(tuple)
-                        while keep >= len(tuple) or keep < 0:
-                            keep = raw_input('Please select which entry to keep: ')
-                        keep = int(keep.strip())
-                        rv.append(data.get(tuple[keep], link._indices[i]))
-                    else:
-                        rv.append(data.get(tuple[0], link._indices[i]))
-                elif x[i] != '':
-                    rv.append(data.get(x[i]))
-
-        return UrbanETL(pd.DataFrame(rv), 'pandas')
-
     def get(self, index, column):
         '''
         Gets an individual entry from the UrbanETL object based on its index.
-        Entry value MUST be unique.
+        Entry value MUST be unique, else returns the first entry found for
+        that value.
         '''
         try:
-            lkp = etl.lookupone(self._data, column, strict=True)
-            return lkp[index]
-        except etl.errors.DuplicateKeyError as e:
+            lkp = petl.lookupone(self._data, column, strict=True)
+            return list(lkp[str(index)])
+        except petl.errors.DuplicateKeyError as e:
             print e
 
     def __repr__(self):
-        petl.look(self, style = 'minimal')
+        return str(self)
+
+    def __str__(self):
+        return str(petl.util.vis.look(self._data, style='minimal'))
 
     def __iter__(self):
         for x in self._data:
             yield x
+
+    def __len__(self):
+        return len(self._data)
