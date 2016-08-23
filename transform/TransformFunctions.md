@@ -1,9 +1,9 @@
 ## Transform Functions
 This file contains in-depth descriptions for using UrbanETL transform functions.
 
-##### `transform.headers(Extract)`
+#### `transform.headers(Extract)`
 Returns the headers of the Extract table given as a tuple.
-##### `transform.link(data=[], how='eblink', interactive=False, links=[], uids=[], types=[], iterations=100000, alpha=1, beta=999 out='pairs')`
+#### `transform.link(data=[], how='eblink', interactive=False, links=[], uids=[], types=[], iterations=100000, alpha=1, beta=999 out='pairs')`
 Performs data linkage between multiple datasets.
 
 __Arguments:__  
