@@ -13,8 +13,8 @@ __Arguments:__
 + `links` is a list of columns to link on, where each item is a tuple containing the name of the column in each subsequent Extract. For example, if Extract1 has a column 'column1' that contains the same information as 'col1' in Extract2, you would enter this in as the tuple `('column1', 'col1')` to link on those columns.
 + `uids` is a list of column names indicating the unique index in each Extract table, in order by
 + `out` specifies what to return:
-  + `'pairs'` - default; an Extract object containing pairs of linked records
-  + `'links'` - an Extract object containing only unique records; note that the function selects which record to keep
+  + `'links'` - default; an Extract object containing pairs of linked records with only their UIDs specified
+  + `'linked'` - an Extract object containing only unique records; note that the function selects the first file's record to keep, dropping other files' records
   + `'inter'` - interactively ask user to construct Extract object containing only unique records and return that object
 + *For ebLink:* `types` specifies whether each column is categorical (e.g. age, dates, census block) or a string to match (e.g. name, company). Must be a list, in order by `links`.
 + *For ebLink:* `iterations` is the number of Gibbs iterations to execute; 100,000 or more are recommended, with accuracy improving as the number increases.

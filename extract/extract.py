@@ -18,50 +18,55 @@
 
 import petl
 import csv
-import transform
+import eblink as eb
 
 # When you add a supported format, please add it to the SUPPORTED global for
 # reference purposes, in the order added.
 
 SUPPORTED = ['csv', 'pandas']
 
-class UrbanExtract():
+class UrbanETL():
 
-    def __init__(self, datasource, datatype=None, args = ()):
+    def __init__(self, datasource, datatype=None):
         self.datasource = datasource
         self.datatype = datatype
         self.data = None
-        self.read()
+        self.extract()
 
-    def read(self):
+    def extract(self):
         '''
         A nest of booleans to determine which extract function to call.
 
         See the SUPPORTED global for currently supported file types.
         '''
-        ### CSV ###
         if self.datatype == 'csv' or '.csv' in self.datasource:
+            ### CSV ###
             try:
                 self.data = petl.io.fromcsv(self.datasource)
                 print "----> Data extracted successfully."
+                return
             except Exception as e:
                 print "----> ERROR: Cannot read csv file. {}".format(e)
-
-        ### PANDAS ###
         if self.datatype == 'pandas':
+            ### PANDAS ###
             try:
-                self.data = petl.io.fromdataframe(self.datasource, include_index=False))
+                self.data = petl.io.fromdataframe(self.datasource, include_index=False)
                 print "----> Data extracted successfully."
+                return
             except Exception as e:
                 print "----> ERROR: Cannot read pandas dataframe. {}".format(e)
-
-        ### ERROR MESSAGE ###
         else:
+            ### ERROR MESSAGE ###
             print "----> This datasource type is not yet supported or cannot be determined."
             print "----> If datasource type is supported, please specify using datatype."
             print "----> Urban ETL currently supports the following data formats:\n"
             for x in SUPPORTED:
                 print "        {}".format(x)
+
+                          ###########################
+                          ###   Load Functions    ###
+                          ###########################
+
 
     def load(self, desttype, destination=None, **kargs):
         '''
