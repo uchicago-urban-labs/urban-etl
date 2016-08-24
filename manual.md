@@ -2,7 +2,7 @@
 
 This manual contains full descriptions for the functionality of Urban ETL.
 
-**Supported File Types:**  
+**Supported Extract/Load Data Types:**  
 + `'csv'` - a csv text file
 + `'pandas'` - a Pandas dataframe objects
 
@@ -24,9 +24,10 @@ There is only one extract function, called when the UrbanETL class is initialize
 
 ### `table.extract(datasource, datatype='')`
 
-+ This function will override the existing data in the table if called. Currently
-supported file types are listed above. If edited to include more, please make
-sure to add above and to the SUPPORTED global in the code.
++ If called outside of the initialization, this function will override the existing
+  data in the table if called. Currently supported file types are listed above.
+  If edited to include more, please make sure to add above and to the SUPPORTED
+  global in the code.
  + `datasource` should be a file or database object
  + `datatype` isn't always necessary; Urban ETL will do its best to figure out
   what kind of datasource has been entered. Accepted file types are listed above.
