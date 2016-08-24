@@ -127,6 +127,58 @@ class UrbanETL(object):
         '''
         return petl.util.base.header(self._data)
 
+    def get(self, index, column):
+        '''
+        Gets an individual entry from the UrbanETL object based on its index.
+        Entry value MUST be unique, else returns the first entry found for
+        that value.
+
+        Supports compound indices, just pass a tuple for index and column.
+        '''
+        try:
+            lkp = petl.lookup(self._data, column, strict=True)
+            return list(lkp[str(index)])
+        except petl.errors.DuplicateKeyError as e:
+            print e
+
+    def nrows(self):
+        '''
+        Returns number of rows.
+        '''
+        return petl.util.counting.nrows(self._data)
+
+    def valuecount(self, field, value, missing=None):
+        '''
+        Counts the number of occurrences of value under the given field.
+        Returns the absolute count and relative frequency as a pair.
+        '''
+        return petl.util.counting.valuecount(self._data, field, value, missing=None)
+
+    def head(self, n=10):
+        '''
+        Returns the first n rows. Default is n=10.
+        '''
+        return petl.transform.basics.head(self._data, n)
+
+    def tail(self, n=10):
+        '''
+        Returns last n rows. Default is n=10.
+        '''
+        return petl.transform.basics.tail(self._data, n)
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return str(petl.util.vis.look(self._data, style='minimal'))
+
+    def __iter__(self):
+        for x in petl.util.base.data(self._data):
+            yield x
+
+    def __len__(self):
+        return self.nrows()
+
 ################################################################################
 ############################# Transform Functions ##############################
 ################################################################################
@@ -204,28 +256,3 @@ class UrbanETL(object):
                 else:
                     matchcolumns[columns[0][i]].append(links[i][j])
         return (columns, matchcolumns)
-
-    def get(self, index, column):
-        '''
-        Gets an individual entry from the UrbanETL object based on its index.
-        Entry value MUST be unique, else returns the first entry found for
-        that value.
-        '''
-        try:
-            lkp = petl.lookupone(self._data, column, strict=True)
-            return list(lkp[str(index)])
-        except petl.errors.DuplicateKeyError as e:
-            print e
-
-    def __repr__(self):
-        return str(self)
-
-    def __str__(self):
-        return str(petl.util.vis.look(self._data, style='minimal'))
-
-    def __iter__(self):
-        for x in self._data:
-            yield x
-
-    def __len__(self):
-        return len(self._data)
