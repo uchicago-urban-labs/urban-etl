@@ -3,21 +3,24 @@ A modular pipeline for extract-transform-load, created for the UChicago Urban
 Labs.
 
 ## Purpose
-This code base is a flexible, easily extensible system for regularizing
-extract-transfer-load processes for the Urban Labs. Written in Python, this
-system can easily take new functions, either built off of petl (the underlying
-  ETL code) or custom built for specific applications.
+This code base is a flexible, easily extensible system for regularizing extract-transfer-load processes for the Urban Labs. It provides general functions for data cleaning/de-duplication/linkage as well as specific functionalities based on the needs and practices at the labs. Streamlining the process will avoid constant re-coding and provide clarification and transparency on how data is being transformed. Written in Python, this system can easily take new functions, either built off of petl (the underlying ETL code) or custom built for specific applications.
 
 ## Requirements
-This code is written in Python 2.7. Make sure the run the requirements.txt
-file for the necessary packages outside of this repo:
-+ [petl](https://petl.readthedocs.io) - for which Urban ETL is primarily a
-simple-to-use wrapper
-+ [sqlalchemy](https://readthedocs.org/projects/sqlalchemy/) - which allows
-Extracts and Loads to SQL databases
-+ [ebLink for Python](https://github.com/aldengolab/graphical-record-linkage) -
-which is a Python encapsulation of [ebLink](https://github.com/resteorts/ebLink),
-contained within this directory
+This code is written in Python 2.7. Make sure the run the requirements.txt file for the necessary packages outside of this repo:
++ [petl](https://petl.readthedocs.io) - for which Urban ETL is primarily a simple-to-use wrapper
++ [pandas](http://pandas.pydata.org/pandas-docs/version/0.15.2/index.html) - for which Urban ETL is primarily a simple-to-use wrapper
++ [sqlalchemy](https://readthedocs.org/projects/sqlalchemy/) - which allows Extracts and Loads to SQL databases
++ [ebLink for Python](https://github.com/aldengolab/graphical-record-linkage) - which is a Python encapsulation of [ebLink](https://github.com/resteorts/ebLink), contained within this directory
+
+## Supported Input/Output File Types:
++ Excel: .xls/.xlrd/.xlwt/.xlsx
++ .dta
++ .csv
++ .json
++ .html
++ dataframes (pandas)
++ pickle file
++ databases .db
 
 ## Sample Usage
 
