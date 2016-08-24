@@ -57,6 +57,25 @@ head or get column names.
 + Returns an individual entry from the table based on its index for the column
   specified. Entry value MUST be unique, else returns the first entry found for
   that value.
+ + Supports compound indices, just pass a tuple for both index and column, e.g.
+ `table.get(('James', 'Corden'), ('fname', 'lname'))`
+
+### `table.nrows()`
+
++ Returns the length of the table.
+
+
+### `table.valuecount(field, value, missing=None)`
+
++ Counts the number of occurrences of value under the given field. Returns the absolute count and relative frequency as a pair.
+
+### `table.head(n=10)`
+
+ + Returns the first n rows of the data. Default set to 10.
+
+### `table.tail(n=10)`
+
++ Returns the last n rows of the data. Default set to 10.
 
 ## Transform
 Transform functions directly edit the table contained within the UrbanETL class
