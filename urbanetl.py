@@ -117,19 +117,23 @@ class UrbanETL(object):
             for x in SUPPORTED:
                 print "        {}".format(x)
 
-
 ################################################################################
-############################# Transform Functions ##############################
+#############################  Utility Functions  ##############################
 ################################################################################
-
-## Transform functions should always operate inplace by default.
-## Note that this requires editing the self._data table directly.
 
     def headers(self):
         '''
         Returns the headers of the Extract table given as a tuple.
         '''
         return petl.util.base.header(self._data)
+
+################################################################################
+############################# Transform Functions ##############################
+################################################################################
+
+## Transform functions should always operate inplace by default.
+## Note that this requires editing the self._data table directly; petl functions
+## do not edit in place.
 
     def link(self, data=[], how='eblink', interactive=False, links=[], uids=[],
      types=[], iterations=100000, alpha=1, beta=999, out='links'):
