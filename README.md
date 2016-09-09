@@ -13,14 +13,14 @@ This code is written in Python 2.7. Make sure the run the requirements.txt file 
 + [ebLink for Python](https://github.com/aldengolab/graphical-record-linkage) - which is a Python encapsulation of [ebLink](https://github.com/resteorts/ebLink), contained within this directory
 
 ## Supported Input/Output File Types:
-+ Excel: .xls/.xlrd/.xlwt/.xlsx
-+ .dta
++ [in development] Excel: .xls/.xlrd/.xlwt/.xlsx
++ [in development] .dta
 + .csv
-+ .json
-+ .html
++ [in development] .json
++ [in development] .html
 + dataframes (pandas)
-+ pickle file
-+ databases .db
++ [in development] pickle file
++ [in development] databases .db
 
 ## Sample Usage
 
