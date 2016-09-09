@@ -203,14 +203,14 @@ class UrbanETL(object):
             else:
                 link = eb.EBlink(files=files)
                 # Prepare inputs
-                link._columns, link._matchcolumns = self._eblink_buildcols(
+                link.columns, link.match_columns = self._eblink_buildcols(
                  links)
-                link._indices = uids
-                link._column_types = self._eblink_buildtypes(link._columns[0],
+                link.indices = uids
+                link.column_types = self._eblink_buildtypes(link._columns[0],
                  types)
                 link.iterations = iterations
-                link.a = alpha
-                link.b = beta
+                link.alpha = alpha
+                link.beta = beta
                 # Carry out process
                 link.build()
                 link.model()
